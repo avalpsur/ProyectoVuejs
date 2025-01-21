@@ -1,99 +1,101 @@
 <template>
+  <div>
+    <h1>Búsqueda de canciones en Deezer</h1>
+    <!-- Componente hijo -->
+    <SearchBar @results="handleResults" />
+    
+    <!-- Filtros -->
     <div>
-      <h1>Buscador</h1>
-      <p>Busca canciones, artistas o álbumes.</p>
-      <p>En esta sección ya se ha configurado una llamada a la API pública de Deezer.</p>
-      <p>Para que salgan los resultados debes entrar en <a href="https://cors-anywhere.herokuapp.com/corsdemo">https://cors-anywhere.herokuapp.com/corsdemo</a></p>
-    </div>
-  <div class="search-page">
-    <h1>Resultados del Álbum</h1>
-    <div class="album-info">
-      <h2>{{ albumData.title }}</h2>
-      <img :src="albumData.cover_medium" alt="Portada del álbum" />
-      <p><strong>Artista:</strong> {{ albumData.artist?.name }}</p>
-      <p><strong>Fecha de lanzamiento:</strong> {{ albumData.release_date }}</p>
+      <label>
+        <input type="checkbox" v-model="filterByTitle" @change="applyFilters" />
+        Filtrar por nombre de canción (ascendente)
+      </label>
+      <label>
+        <input type="checkbox" v-model="filterByArtist" @change="applyFilters" />
+        Filtrar por nombre de artista (ascendente)
+      </label>
+      <label>
+        Duración mínima (segundos):
+        <input type="number" v-model.number="minDuration" @input="applyFilters" />
+      </label>
     </div>
 
-    <div class="songs">
-      <h3>Canciones</h3>
-      <div class="song-cards">
-        <div
-          v-for="song in albumData.tracks?.data"
-          :key="song.id"
-          class="song-card"
-        >
-          <p><strong>{{ song.title }}</strong></p>
-          <audio :src="song.preview" controls></audio>
-        </div>
-      </div>
-    </div>
+    <!-- Lista de canciones -->
+    <ul v-if="filteredSongs.length > 0">
+      <li v-for="song in filteredSongs" :key="song.id">
+        <img :src="song.album.cover" alt="Album Cover" class="album-cover" />
+        <strong>{{ song.title }}</strong> - {{ song.artist.name }} - {{ song.album.title }} - {{ song.duration }}
+        <button @click="addToPlaylist(song)">Agregar a Playlist</button>
+      </li>
+    </ul>
+    <p v-else>No hay resultados para mostrar</p>
+
+    <!-- Lista de canciones en la playlist -->
+    <h2>Playlist</h2>
+    <ul v-if="playlist.length > 0">
+      <li v-for="song in playlist" :key="song.id">
+        <img :src="song.cover" alt="Album Cover" class="album-cover" />
+        <strong>{{ song.title }}</strong> - {{ song.artist }} - {{ song.album }} - {{ song.duration }}
+        <button @click="removeFromPlaylist(song.id)">Eliminar</button>
+      </li>
+    </ul>
+    <p v-else>No hay canciones en la playlist</p>
   </div>
 </template>
-  
-  <script setup>
-  import { ref, onMounted } from 'vue';
-  
-  const albumData = ref({}); // Guardará los datos del álbum
-  
-  // Función para obtener datos del álbum desde la API de Deezer
-  const fetchAlbumData = async () => {
-    try {
-      const response = await fetch('https://cors-anywhere.herokuapp.com/https://api.deezer.com/album/586206062');
-      if (!response.ok) throw new Error('Error al obtener los datos');
-      albumData.value = await response.json();
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-  
-  // Llama a la función al montar el componente
-  onMounted(fetchAlbumData);
-  </script>
-  
-  <style scoped>
-  h1 {
-    color: #dc3545;
+
+<script setup>
+import { ref, computed, watch } from "vue";
+import { useUserStore } from "../stores/counter"; // Importa la store de Pinia
+import SearchBar from "../components/SearchBar.vue"; // Importa el componente hijo
+
+const songs = ref([]); // Estado para almacenar la lista de canciones
+const userStore = useUserStore(); // Accede a la store de Pinia
+
+const filterByTitle = ref(false);
+const filterByArtist = ref(false);
+const minDuration = ref(0); // Estado para almacenar la duración mínima
+
+// Computed property to get the playlist from the store
+const playlist = computed(() => userStore.playlist);
+
+// Computed property to get the filtered songs
+const filteredSongs = computed(() => {
+  let sortedSongs = [...songs.value];
+  if (filterByTitle.value) {
+    sortedSongs.sort((a, b) => a.title.localeCompare(b.title));
+  } else if (filterByArtist.value) {
+    sortedSongs.sort((a, b) => a.artist.name.localeCompare(b.artist.name));
   }
-  .search-page {
-  padding: 20px;
-}
+  return sortedSongs.filter(song => song.duration >= minDuration.value);
+});
 
-.album-info {
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 10px;
-}
+// Maneja los resultados emitidos por el componente hijo
+const handleResults = (data) => {
+  songs.value = data; // Actualiza la lista de canciones
+};
 
-.album-info img {
-  margin-top: 10px;
-  width: 200px;
-  border-radius: 10px;
-}
+// Aplica los filtros
+const applyFilters = () => {
+  if (filterByTitle.value && filterByArtist.value) {
+    filterByArtist.value = false; // No se pueden aplicar ambos filtros a la vez
+  }
+};
 
-.songs {
-  margin-top: 20px;
-}
+// Agrega una canción a la playlist
+const addToPlaylist = (song) => {
+  userStore.addSong(song); // Llama a la acción para agregar la canción
+};
 
-.song-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
+// Elimina una canción de la playlist
+const removeFromPlaylist = (id) => {
+  userStore.removeSong(id); // Llama a la acción para eliminar la canción
+};
+</script>
 
-.song-card {
-  padding: 10px;
-  border: 1px solid #007bff;
-  border-radius: 10px;
-  background-color: #e9ecef;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+<style scoped>
+.album-cover {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
 }
-
-.song-card audio {
-  margin-top: 10px;
-  width: 100%;
-}
-  </style>
-  
+</style>
