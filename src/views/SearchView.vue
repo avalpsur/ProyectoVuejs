@@ -1,44 +1,55 @@
 <template>
   <div>
-    <h1>Búsqueda de canciones en Deezer</h1>
-    <!-- Componente hijo -->
     <SearchBar @results="handleResults" />
-    
-    <!-- Filtros -->
-    <div>
-      <label>
-        <input type="checkbox" v-model="filterByTitle" @change="applyFilters" />
-        Filtrar por nombre de canción (ascendente)
-      </label>
-      <label>
-        <input type="checkbox" v-model="filterByArtist" @change="applyFilters" />
-        Filtrar por nombre de artista (ascendente)
-      </label>
-      <label>
-        Duración mínima (segundos):
-        <input type="number" v-model.number="minDuration" @input="applyFilters" />
-      </label>
-    </div>
 
-    <!-- Lista de canciones -->
-    <ul v-if="filteredSongs.length > 0">
-      <li v-for="song in filteredSongs" :key="song.id">
-        <img :src="song.album.cover" alt="Album Cover" class="album-cover" />
-        <strong>{{ song.title }}</strong> - {{ song.artist.name }} - {{ song.album.title }} - {{ song.duration }}
-        <button @click="addToPlaylist(song)">Agregar a Playlist</button>
-      </li>
-    </ul>
+    <label>
+      Duración mínima (segundos):
+      <input type="number" v-model.number="minDuration" @input="applyFilters" />
+    </label>
+    <label>
+      <input type="checkbox" v-model="filterByTitle" @change="applyFilters" /> Ordenar por título
+    </label>
+    <label>
+      <input type="checkbox" v-model="filterByArtist" @change="applyFilters" /> Ordenar por artista
+    </label>
+
+    <div class="row no-gutters" v-if="filteredSongs.length > 0">
+      <div class="col-md-3 p-0" v-for="song in filteredSongs" :key="song.id">
+        <div class="card-container mt-2">
+          <div class="card card-fixed-size custom-card">
+            <div class="img-container">
+              <img :src="song.album.cover" class="card-img-top" alt="Album Cover" />
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">{{ song.title }}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">{{ song.artist.name }}</h6>
+              <p class="card-text">{{ song.album.title }}</p>
+              <button class="btn btn-primary" @click="addToPlaylist(song)">Agregar a Playlist</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <p v-else>No hay resultados para mostrar</p>
 
-    <!-- Lista de canciones en la playlist -->
     <h2>Playlist</h2>
-    <ul v-if="playlist.length > 0">
-      <li v-for="song in playlist" :key="song.id">
-        <img :src="song.cover" alt="Album Cover" class="album-cover" />
-        <strong>{{ song.title }}</strong> - {{ song.artist }} - {{ song.album }} - {{ song.duration }}
-        <button @click="removeFromPlaylist(song.id)">Eliminar</button>
-      </li>
-    </ul>
+    <div class="row no-gutters" v-if="playlist.length > 0">
+      <div class="col-md-3 p-0" v-for="song in playlist" :key="song.id">
+        <div class="card-container mt-2">
+          <div class="card card-fixed-size custom-card">
+            <div class="img-container">
+              <img :src="song.cover" class="card-img-top" alt="Album Cover" />
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">{{ song.title }}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">{{ song.artist }}</h6>
+              <p class="card-text">{{ song.album }}</p>
+              <button class="btn btn-danger" @click="removeFromPlaylist(song.id)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <p v-else>No hay canciones en la playlist</p>
   </div>
 </template>
@@ -76,26 +87,90 @@ const handleResults = (data) => {
 
 // Aplica los filtros
 const applyFilters = () => {
-  if (filterByTitle.value && filterByArtist.value) {
-    filterByArtist.value = false; // No se pueden aplicar ambos filtros a la vez
-  }
+  // Trigger the computed property to re-evaluate
 };
 
 // Agrega una canción a la playlist
 const addToPlaylist = (song) => {
-  userStore.addSong(song); // Llama a la acción para agregar la canción
+  userStore.addToPlaylist(song);
 };
 
 // Elimina una canción de la playlist
-const removeFromPlaylist = (id) => {
-  userStore.removeSong(id); // Llama a la acción para eliminar la canción
+const removeFromPlaylist = (songId) => {
+  userStore.removeFromPlaylist(songId);
 };
 </script>
 
-<style scoped>
-.album-cover {
-  width: 50px;
-  height: 50px;
-  margin-right: 10px;
+<style>
+.card-container {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  margin-top: 10px; /* Añade margen superior a las tarjetas */
+}
+
+.card-fixed-size {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: 400px; /* Altura máxima para las tarjetas */
+  overflow: hidden; /* Oculta el contenido que exceda la altura máxima */
+}
+
+.img-container {
+  height: 150px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.card-img-top {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: 200px; /* Altura máxima para el cuerpo de la tarjeta */
+}
+
+.custom-card {
+  background-color: #f8f9fa; /* Color de fondo personalizado */
+  border: 1px solid #dee2e6; /* Color del borde */
+}
+
+.custom-card .card-title,
+.custom-card .card-subtitle,
+.custom-card .card-text {
+  color: #343a40; /* Color del texto */
+  font-size: 0.875rem; /* Tamaño de fuente más pequeño */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-card .card-title {
+  height: 1.5rem; /* Altura fija para el título */
+}
+
+.custom-card .card-subtitle {
+  height: 1.25rem; /* Altura fija para el subtítulo */
+}
+
+.custom-card .card-text {
+  height: 1.25rem; /* Altura fija para el texto */
+}
+
+.custom-card .btn-primary {
+  background-color: #007bff; /* Color del botón primario */
+  border-color: #007bff;
+}
+
+.custom-card .btn-danger {
+  background-color: #dc3545; /* Color del botón de eliminar */
+  border-color: #dc3545;
 }
 </style>
