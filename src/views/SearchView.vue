@@ -18,7 +18,7 @@
         <div class="card-container mt-2">
           <div class="card card-fixed-size custom-card">
             <div class="img-container">
-              <img :src="song.album.cover" class="card-img-top" alt="Album Cover" />
+              <img :src="song.album.cover_medium" class="card-img-top" alt="Album Cover" />
             </div>
             <div class="card-body">
               <h5 class="card-title">{{ song.title }}</h5>
@@ -31,31 +31,11 @@
       </div>
     </div>
     <p v-else>No hay resultados para mostrar</p>
-
-    <h2>Playlist</h2>
-    <div class="row no-gutters" v-if="playlist.length > 0">
-      <div class="col-md-3 p-0" v-for="song in playlist" :key="song.id">
-        <div class="card-container mt-2">
-          <div class="card card-fixed-size custom-card">
-            <div class="img-container">
-              <img :src="song.cover" class="card-img-top" alt="Album Cover" />
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">{{ song.title }}</h5>
-              <h6 class="card-subtitle mb-2 text-muted">{{ song.artist }}</h6>
-              <p class="card-text">{{ song.album }}</p>
-              <button class="btn btn-danger" @click="removeFromPlaylist(song.id)">Eliminar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <p v-else>No hay canciones en la playlist</p>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import { useUserStore } from "../stores/counter"; // Importa la store de Pinia
 import SearchBar from "../components/SearchBar.vue"; // Importa el componente hijo
 
@@ -92,12 +72,12 @@ const applyFilters = () => {
 
 // Agrega una canción a la playlist
 const addToPlaylist = (song) => {
-  userStore.addToPlaylist(song);
+  userStore.addSong(song); // Llama a la acción addSong en la store
 };
 
 // Elimina una canción de la playlist
 const removeFromPlaylist = (songId) => {
-  userStore.removeFromPlaylist(songId);
+  userStore.removeSong(songId);
 };
 </script>
 
