@@ -11,11 +11,11 @@
       <button @click="clearEmail">Limpiar Email</button>
     </div>
   </template>
-  
+   
   <script setup>
   import { computed } from 'vue';
   import { useUserStore } from '../stores/email';
-  
+
   // Accede a la store
   const userStore = useUserStore();
   
