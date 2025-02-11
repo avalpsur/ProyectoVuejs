@@ -1,49 +1,77 @@
 <template>
-  <div id="app">
-    <!-- Header -->
-    <header class="bg-primary text-white py-3">
-      <div class="container d-flex justify-content-between align-items-center">
-        <span class="brand-text">Deezer Music</span>
-        <Menu />
+  <div class="app-container">
+    <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">🎵 MyMusicApp</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <router-link class="nav-link text-light" to="/">Inicio</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link text-light" to="/playlists">Playlists</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link text-light" to="/search">Buscar</router-link>
+            </li>
+          </ul>
+        </div>
       </div>
-    </header>
+    </nav>
 
-    <!-- Main Content -->
-    <main class="container my-4">
-      <router-view />
-    </main>
+    <div class="content mt-3">
+      <router-view @play-song="setCurrentTrack"></router-view>
+    </div>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3">
-      <p>&copy; 2024 Deezer Music Client. Todos los derechos reservados.</p>
+    <Reproductor :track="currentTrack" />
+
+    <footer class="footer bg-dark text-light text-center py-3 mt-auto">
+      <p class="m-0">&copy; 2025 MyMusicApp - Todos los derechos reservados</p>
     </footer>
   </div>
 </template>
 
 <script setup>
-import Menu from "./components/menu.vue";
+import { ref } from 'vue';
+import Reproductor from './components/Reproductor.vue';
+
+const currentTrack = ref(null);
+
+const setCurrentTrack = (song) => {
+  currentTrack.value = song;
+};
 </script>
 
-<style lang="scss">
-nav {
-  border: 1px solid gray;
-}
-$hover-bg-color: #007bff;
-$hover-text-color: #ffffff;
-li {
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
 
-  &:hover {
-    background-color: $hover-bg-color;
-    color: $hover-text-color;
-    font-weight: bold;
-  }
+<style scoped>
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 60px; /* Espacio para el reproductor */
 }
 
-.brand-text {
-  font-size: 1.5rem;
-  font-weight: bold;
+.content {
+  flex: 1;
+  padding: 20px;
+  background: linear-gradient(135deg, #1db954, #191414);
+  color: white;
+}
+
+.footer {
+  position: relative;
+  bottom: 0;
+  width: 100%;
 }
 </style>
