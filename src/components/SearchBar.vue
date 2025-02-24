@@ -19,7 +19,7 @@ const searchQuery = ref("");
 const emit = defineEmits(["results"]);
 const searchDeezer = async () => {
   if (searchQuery.value.trim() === "") return;
-  const url = `http://localhost:8080/https://api.deezer.com/search?q=${encodeURIComponent(searchQuery.value)}`;
+  const url = `/api/search?q=${encodeURIComponent(searchQuery.value)}`;
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error("Error al buscar en Deezer");

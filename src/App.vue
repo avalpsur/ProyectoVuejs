@@ -2,7 +2,7 @@
   <div class="app-container">
     <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">🎵 MyMusicApp</a>
+        <a class="navbar-brand" href="#">DeezerTotal</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -37,7 +37,7 @@
     <Reproductor :track="currentTrack" />
 
     <footer class="footer bg-dark text-light text-center py-3 mt-auto">
-      <p class="m-0">&copy; 2025 MyMusicApp - Todos los derechos reservados</p>
+      <p class="m-0">&copy; 2025 DeezerTotal - Todos los derechos reservados</p>
     </footer>
   </div>
 </template>

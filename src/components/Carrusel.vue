@@ -32,7 +32,7 @@
   const songs = ref([]);
   
   const fetchSongs = async () => {
-    const url = `http://localhost:8080/https://api.deezer.com/chart`;
+    const url = `/api/chart`;
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error('Error fetching data');

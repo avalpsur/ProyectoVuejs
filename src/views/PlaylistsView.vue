@@ -1,50 +1,37 @@
 <template>
-  <div>
-    <h1>Playlists</h1>
-    <p>Gestiona tus playlists aquí.</p>
-  </div>
-  <!-- Mostrar datos de la store directamente -->
-  <div class="store-data">
-    <h3>Datos desde la Store:</h3>
-    <p>Email actual: {{ userEmail }}</p>
-    <p>Dominio del email: {{ emailDomain }}</p>
-  </div>
-  <!-- Mostrar la lista de canciones en la playlist -->
-  <div v-if="playlist.length > 0">
-    <h3>Tu Playlist:</h3>
-    <ul>
-      <li v-for="song in playlist" :key="song.id" class="playlist-item">
-        <img :src="song.album.cover_medium" alt="Album Cover" class="album-cover" />
-        <div class="song-info">
-          <h5 class="song-title">{{ song.title }}</h5>
-          <h6 class="song-artist">{{ song.artist.name }}</h6>
-          <p class="song-album">{{ song.album.title }}</p>
+  <div class="container py-4">
+    <h1 class="text-white text-center mb-4">🎶 Tu Playlist</h1>
+    <div v-if="playlist.length > 0" class="row">
+      <div class="col-md-3" v-for="song in playlist" :key="song.id">
+        <div class="card song-card h-100 shadow-lg">
+          <div class="card-img-container">
+            <img :src="song.album.cover_medium" class="card-img-top" alt="Album Cover" />
+          </div>
+          <div class="card-body text-center">
+            <h5 class="card-title fw-bold text-white">{{ song.title }}</h5>
+            <h6 class="card-subtitle text-light">{{ song.artist.name }}</h6>
+            <p class="card-text text-muted">{{ song.album.title }}</p>
+            <button class="btn btn-danger w-100 mt-2" @click="removeFromPlaylist(song.id)">❌ Eliminar</button>
+          </div>
         </div>
-        <button @click="removeFromPlaylist(song.id)" class="btn btn-danger">Eliminar</button>
-      </li>
-    </ul>
+      </div>
+    </div>
+    <p v-else class="text-white text-center">No hay canciones en tu playlist</p>
   </div>
-  <p v-else>No hay canciones en tu playlist</p>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import { useUserStore } from '../stores/counter'; // Importa la store de Pinia
+import { usePlaylistStore } from '@/stores/playlistStore';
 
-// Vincula datos de la store
-const userStore = useUserStore();
+const playlistStore = usePlaylistStore();
+const playlist = computed(() => playlistStore.playlist); // Usa computed para mantener la reactividad
 
-const userEmail = computed(() => userStore.email);
-const emailDomain = computed(() => userStore.emailDomain);
-
-// Computed property to get the playlist from the store
-const playlist = computed(() => userStore.playlist);
-
-// Elimina una canción de la playlist
-const removeFromPlaylist = (songId) => {
-  userStore.removeSong(songId);
+const removeFromPlaylist = (id) => {
+  playlistStore.removeSongFromPlaylist(id);
 };
 </script>
+
 
 <style scoped>
 h1 {
